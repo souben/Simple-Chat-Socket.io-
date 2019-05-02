@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <title>Super Chat</title>
+    <meta charset="utf-8">
+  </head>
+  <body>
+    <head>
+      <h1>Super Chat : temps reel !</h1>
+    </head>
+    <div class="container">
+      <form method="POST">
+        <input type="text" name="msg" id="msg" placeholder="votre message ici ..." size="50">
+        <input type="button" id="send" value="Envoyer">
+      </form>
+      <div class="conversation">
+        <p class="new_message"></p>
+      </div>
+
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+         const socket = io.connect('http://localhost:8888');
+         const pseudo = prompt('Quel est votre peudo?');
+         socket.emit('pseudo', pseudo);
+         document.title = pseudo + ' - ' + document.title;
+         
+         $(document).ready(function(){
+            // receive a new user
+            socket.on('new_user', (new_user) => {
+              $('p.new_message').prepend(new_user + '</br>');
+              });
+            // receive a new message
+            socket.on('new_message', (new_message) => {
+               $('p.new_message').prepend(new_message);});
+            // send a new message
+            $('#send').click(function(){
+                   const msg = $('#msg').val() ;
+                   socket.emit('message', userMessage(pseudo, msg));
+                   $('p.new_message').prepend(userMessage(pseudo, msg));
+                   $('#msg').val('').focus();
+                   
+                });
+            function userMessage(user,message){
+              return '<strong style="background-color: black;color: white;margin-right:5px">'+ user +'</strong>'+ message + '</br>';
+            }
+          });
+
+    </script>
+</html>
